@@ -1,0 +1,338 @@
+/* Bubble & Brew — an alchemist's cellar: deep plum stone, brass fittings,
+   glass and lamplight. gamekit's modals, PIN pad and buttons are themed through
+   the --gk-* custom properties rather than forked.
+
+   Every button colour below was chosen by MEASURED contrast against its own
+   label, at the size of the SMALLEST button that uses it (the 15px row of
+   actions), not the biggest. gk-base's defaults sit at or under the 3:1 floor. */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --night-a: #1b1626;
+  --night-b: #3b2450;
+  --ink: #241f30;
+  --paper: #f4ecdd;
+  --paper-sh: #d3c5a9;
+  --brass: #d9a441;
+  --glass: rgba(255,255,255,0.08);
+
+  /* gamekit theming */
+  --gk-accent: #b0592a;   --gk-accent-sh: #7d3c18;
+  --gk-green:  #1a8253;   --gk-green-sh:  #10603b;
+  --gk-blue:   #2670ab;   --gk-blue-sh:   #1a5180;
+  --gk-danger: #c0463d;   --gk-danger-sh: #8d2f28;
+  --gk-ink:    #241f30;
+  --gk-card:   #f4ecdd;
+  --gk-input-border: #d3c5a9;
+  --gk-key-bg: #f4ecdd;
+  --gk-key-sh: #d3c5a9;
+}
+
+/* Painting the ROOT, not just body: in installed (standalone) mode iOS extends
+   the visual viewport past height:100% and the gap falls through to the page
+   canvas, which paints white behind the home indicator. body needs a matching
+   min-height or the two colours meet in the middle of the screen instead. */
+html { background: var(--night-a); height: 100%; }
+body { height: 100%; min-height: 100vh; }
+
+body {
+  font-family: "Baloo 2", system-ui, sans-serif;
+  color: var(--ink);
+  background: linear-gradient(168deg, var(--night-a), var(--night-b)) fixed;
+  background-color: var(--night-a);   /* after the shorthand, or it resets to transparent */
+  overflow: hidden;
+  user-select: none; -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+/* ---------- screens ----------
+   Never set `display` in a #screen-* rule: an ID beats gk-base's
+   .screen/.screen.active pair and pins that screen visible forever. */
+.screen {
+  position: absolute; inset: 0;
+  display: none; flex-direction: column;
+  align-items: stretch;
+  max-width: 560px; margin: 0 auto;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  animation: screenIn 0.32s ease;
+  overflow-y: auto;
+}
+.screen.active { display: flex; }
+@keyframes screenIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+#screen-game { touch-action: none; overflow: hidden; }
+
+.bar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; padding: 4px 2px 10px;
+  position: sticky; top: 0; z-index: 3;
+}
+.bar h2 { font-size: 1.2rem; color: #fff; }
+.game-bar { flex-wrap: wrap; padding-bottom: 6px; }
+.screen-hint { color: rgba(255,255,255,0.9); font-weight: 600; font-size: 0.9rem; padding: 0 4px 10px; }
+
+.hud {
+  color: #fff; font-weight: 700; font-size: 0.92rem;
+  background: var(--glass); border: 1px solid rgba(255,255,255,0.14);
+  padding: 4px 9px; border-radius: 10px; white-space: nowrap;
+}
+.hud.coins b { color: var(--brass); }
+.hud.score b { color: #ffe9a8; }
+
+.icon-btn {
+  border: none; cursor: pointer;
+  background: var(--paper); color: var(--ink);
+  font-size: 1.2rem; line-height: 1;
+  width: 42px; height: 42px; border-radius: 13px;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.32);
+  transition: transform 0.1s;
+  flex: none;
+}
+.icon-btn:active { transform: scale(0.92); }
+
+.btn {
+  border: none; cursor: pointer; margin: 0;
+  font-family: inherit; font-weight: 700; font-size: 1.02rem;
+  color: #fff; background: linear-gradient(180deg, #b35f30, #96491f);
+  padding: 12px 22px; border-radius: 16px;
+  box-shadow: 0 5px 0 var(--gk-accent-sh), 0 8px 18px rgba(0,0,0,0.3);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--gk-accent-sh); }
+.btn.big { font-size: 1.2rem; padding: 15px 28px; }
+.btn.small { font-size: 0.9rem; padding: 9px 14px; border-radius: 13px; box-shadow: 0 4px 0 var(--gk-accent-sh); }
+.btn.wide { width: 100%; }
+.btn.ghost { background: rgba(244,236,221,0.93); color: var(--ink); box-shadow: 0 5px 0 rgba(0,0,0,0.32); }
+.btn.blue { background: linear-gradient(180deg, #2d7bb8, #21608f); box-shadow: 0 5px 0 var(--gk-blue-sh); }
+.btn.green { background: linear-gradient(180deg, #1d855a, #146043); box-shadow: 0 5px 0 var(--gk-green-sh); }
+.btn.grey { background: linear-gradient(180deg, #6f7484, #565b68); box-shadow: 0 5px 0 #434752; }
+.btn:disabled { filter: grayscale(0.85); opacity: 0.48; cursor: not-allowed; transform: none; }
+
+/* ---------- splash ---------- */
+#screen-splash { justify-content: center; align-items: center; overflow: hidden; }
+.splash-inner { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.splash-pot { font-size: 4.6rem; animation: bob 3s ease-in-out infinite; }
+@keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-9px) } }
+.logo {
+  font-size: clamp(2.1rem, 12vw, 3.1rem); line-height: 0.94; color: var(--brass);
+  text-shadow: 0 4px 0 rgba(0,0,0,0.4); letter-spacing: 1px;
+}
+.logo span { display: block; color: #fff; font-size: 0.62em; letter-spacing: 3px; }
+.tagline { color: rgba(255,255,255,0.88); font-weight: 600; max-width: 330px; }
+.splash-foot { display: flex; align-items: center; gap: 12px; margin-top: 6px; color: rgba(255,255,255,0.72); font-size: 0.85rem; }
+
+/* ---------- the cellar ---------- */
+.map-player { color: #fff; font-weight: 700; text-align: center; line-height: 1.15; flex: 1; min-width: 0; }
+.map-player .pmeta { display: block; font-size: 0.8rem; color: rgba(255,255,255,0.75); font-weight: 600; }
+.btn.continue { width: 100%; margin-bottom: 10px; }
+.map-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+.map-actions .btn { font-size: 0.92rem; padding: 11px 8px; }
+
+.brew-list { display: flex; flex-direction: column; gap: 8px; padding-bottom: 20px; }
+
+.chapter-head {
+  margin-top: 10px; padding: 10px 12px; border-radius: 14px;
+  background: linear-gradient(135deg, var(--grad-a), var(--grad-b));
+  color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.chapter-head:first-child { margin-top: 0; }
+.ch-emoji { font-size: 1.3rem; margin-right: 6px; }
+.ch-name { font-weight: 800; font-size: 1.05rem; }
+.ch-intro { display: block; font-size: 0.82rem; color: rgba(255,255,255,0.95); font-weight: 600; margin-top: 2px; }
+
+.brew-card {
+  display: grid; grid-template-columns: 30px 42px minmax(0, 1fr) auto;
+  align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 14px; cursor: pointer;
+  background: linear-gradient(135deg, var(--grad-a), var(--grad-b));
+  color: #fff; box-shadow: 0 4px 0 rgba(0,0,0,0.32);
+  transition: transform 0.1s;
+}
+.brew-card:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.32); }
+.brew-card.locked { filter: grayscale(0.8) brightness(0.65); cursor: default; }
+.brew-card.locked:active { transform: none; }
+/* Full white, not a dimmed white: at 92% opacity this measured 4.49 against the
+   Ember Hollow's orange — one hundredth under the bar. The hierarchy here comes
+   from size, which costs no contrast. */
+.brew-num { font-weight: 800; color: #fff; font-size: 0.95rem; }
+.brew-emoji { font-size: 1.7rem; text-align: center; }
+.brew-title { font-weight: 800; font-size: 1.02rem; }
+.brew-ref { font-size: 0.78rem; color: rgba(255,255,255,0.95); font-weight: 600; }
+.brew-badge { display: flex; gap: 1px; align-items: center; }
+.brew-go { font-size: 1.2rem; }
+.star { color: rgba(255,255,255,0.28); font-size: 1rem; }
+.star.on { color: var(--brass); text-shadow: 0 0 8px rgba(217,164,65,0.7); }
+
+/* ---------- shop rows (Larder) ---------- */
+.shop-list { display: flex; flex-direction: column; gap: 9px; padding-bottom: 20px; }
+.shop-row {
+  display: grid; grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center; gap: 10px;
+  background: var(--paper); border-radius: 15px; padding: 10px 12px;
+  box-shadow: 0 4px 0 var(--paper-sh);
+}
+.shop-row.maxed { opacity: 0.72; }
+.shop-row.poor { opacity: 0.62; }
+.shop-emoji { font-size: 1.8rem; text-align: center; }
+.shop-name { font-weight: 800; font-size: 1rem; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.shop-blurb { font-size: 0.83rem; color: #56506a; font-weight: 600; line-height: 1.25; }
+.shop-effect { font-size: 0.8rem; color: var(--gk-green-sh); font-weight: 700; }
+.pip { width: 8px; height: 8px; border-radius: 50%; background: rgba(0,0,0,0.18); display: inline-block; }
+.pip.on { background: var(--gk-green); }
+
+/* ---------- leaderboard ---------- */
+.lb-rows { display: flex; flex-direction: column; gap: 8px; padding-bottom: 20px; }
+.lb-brews, .lb-stars, .lb-endless, .lb-score { font-size: 0.8rem; font-weight: 700; margin-left: 8px; }
+.lb-score { color: var(--gk-accent-sh); }
+
+/* ---------- the cauldron ---------- */
+/* The cap matters on a tall window: without it the stage grows to whatever is
+   left over and the pot ends up covering half of it, swimming in empty cellar.
+   66vh is above what a phone gives it anyway, so this only bites on a monitor. */
+.brew-stage {
+  position: relative; flex: 1 1 auto; width: 100%;
+  min-height: 180px; max-height: 66vh;
+  border-radius: 18px; overflow: hidden;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
+}
+#cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+.peek-row {
+  display: none; align-items: center; gap: 6px;
+  padding: 6px 4px 0; min-height: 0;
+}
+.peek-row.on { display: flex; }
+.peek-label { color: #9fe6d8; font-weight: 700; font-size: 0.78rem; }
+
+.drawn-rail {
+  display: flex; gap: 5px; align-items: center;
+  overflow-x: auto; overflow-y: hidden;
+  padding: 7px 2px 5px; min-height: 44px;
+  scrollbar-width: none;
+}
+.drawn-rail::-webkit-scrollbar { display: none; }
+
+.chip, .rail-chip {
+  flex: none; position: relative;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--c); border: 2px solid rgba(255,255,255,0.55);
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+}
+.chip.sm, .rail-chip.sm { width: 26px; height: 26px; }
+.chip b, .rail-chip b { color: #1d1a26; font-size: 0.86rem; font-weight: 800; }
+.chip i, .rail-chip i { position: absolute; bottom: -4px; right: -4px; font-size: 0.68rem; font-style: normal; }
+.rail-chip { animation: chipIn 0.3s ease; }
+.rail-chip.sifted { opacity: 0.42; filter: grayscale(0.7); }
+.rail-chip.doubled { box-shadow: 0 0 0 2px #ffe08a, 0 2px 5px rgba(0,0,0,0.4); }
+@keyframes chipIn { from { transform: scale(0.3); opacity: 0 } to { transform: none; opacity: 1 } }
+
+.stake-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center; gap: 8px; padding: 2px 0 8px;
+}
+.stake {
+  background: var(--glass); border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 12px; padding: 5px 8px; text-align: center; color: #fff;
+}
+.stake-label { display: block; font-size: 0.7rem; color: rgba(255,255,255,0.72); font-weight: 600; }
+.stake b { font-size: 1.15rem; font-weight: 800; }
+.stake.risk b { color: #9fe6b0; }
+.stake.risk.hot b { color: #ff9f92; }
+.stake.risk.hot { border-color: rgba(255,140,120,0.6); }
+
+.bag-btn {
+  border: none; cursor: pointer; font-family: inherit; font-weight: 700;
+  background: var(--paper); color: var(--ink);
+  padding: 7px 11px; border-radius: 12px; font-size: 0.85rem;
+  box-shadow: 0 3px 0 var(--paper-sh);
+}
+.bag-btn:active { transform: translateY(2px); box-shadow: none; }
+
+.actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.actions .btn { font-size: 1.05rem; padding: 14px 8px; }
+
+/* ---------- the apothecary ---------- */
+.shop-summary { margin-bottom: 10px; text-align: center; color: #fff; }
+.sum-line { font-weight: 800; font-size: 1.1rem; }
+.sum-line.good { color: #8ee6a0; }
+.sum-line.bad { color: #ff9f92; }
+.sum-stats { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.85); margin-top: 2px; }
+
+.stock-grid { display: flex; flex-direction: column; gap: 8px; padding-bottom: 14px; }
+.stock-card {
+  display: grid; grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center; gap: 10px; text-align: left;
+  border: none; cursor: pointer; font-family: inherit;
+  background: var(--paper); border-radius: 15px; padding: 9px 12px;
+  box-shadow: 0 4px 0 var(--paper-sh);
+  border-left: 5px solid var(--c);
+}
+.stock-card:active { transform: translateY(3px); box-shadow: none; }
+.stock-card.poor { opacity: 0.55; cursor: not-allowed; }
+.stock-card.poor:active { transform: none; }
+.stock-chip {
+  position: relative; width: 36px; height: 36px; border-radius: 50%;
+  background: var(--c); border: 2px solid rgba(0,0,0,0.2);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.stock-chip b { color: #1d1a26; font-weight: 800; }
+.stock-chip i { position: absolute; bottom: -5px; right: -5px; font-size: 0.75rem; font-style: normal; }
+.stock-body { display: block; min-width: 0; }
+.stock-name { display: block; font-weight: 800; font-size: 0.98rem; color: var(--ink); }
+.stock-eff { display: block; font-size: 0.82rem; font-weight: 700; color: var(--gk-accent-sh); }
+.stock-blurb { display: block; font-size: 0.76rem; color: #56506a; font-weight: 600; line-height: 1.2; }
+.stock-cost { font-weight: 800; color: var(--gk-accent-sh); white-space: nowrap; }
+
+/* ---------- bag modal ---------- */
+.bag-grid { display: flex; flex-direction: column; gap: 6px; max-height: 46vh; overflow-y: auto; margin: 8px 0 12px; }
+.bag-row { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 8px; text-align: left; }
+.bag-name { font-weight: 800; font-size: 0.9rem; }
+.bag-eff { display: none; }
+.bag-count { font-weight: 800; color: var(--gk-accent-sh); }
+.bag-empty { font-weight: 600; color: #56506a; padding: 12px 0; }
+@media (min-width: 380px) {
+  .bag-row { grid-template-columns: 36px 96px minmax(0, 1fr) auto; }
+  .bag-eff { display: block; font-size: 0.78rem; color: #56506a; font-weight: 600; }
+}
+
+/* ---------- results ---------- */
+#screen-results { justify-content: center; align-items: center; }
+.res-inner { text-align: center; color: #fff; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.res-emoji { font-size: 3.6rem; }
+.res-title { font-size: 1.35rem; }
+.res-stars .star { font-size: 2rem; }
+.res-score { font-size: 1.4rem; font-weight: 800; color: #ffe9a8; }
+.res-target { font-size: 0.86rem; color: rgba(255,255,255,0.75); font-weight: 600; }
+.res-stats { display: flex; flex-direction: column; gap: 2px; font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.88); margin-top: 4px; }
+.res-finished { font-size: 0.9rem; color: var(--brass); font-weight: 700; max-width: 320px; }
+.res-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+
+/* ---------- modals ----------
+   gk-base styles `.sheet` (the modals its own profile and install code
+   injects) and NOTHING else — `.modal-box` is a per-game class, so a game that
+   forgets it gets dark ink floating on the dark scrim at about 1.2:1. That is
+   exactly what shipped here until the contrast sweep caught it. */
+.modal { background: rgba(18, 13, 27, 0.64); backdrop-filter: blur(3px); }
+.modal-box {
+  background: var(--paper); color: var(--ink);
+  border-radius: 22px; padding: 20px;
+  width: min(92vw, 400px); max-height: 86vh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 12px;
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+}
+@keyframes popIn { from { transform: scale(0.72); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal-box h3 { font-size: 1.35rem; }
+.modal-box input { font-family: inherit; font-size: 1.1rem; font-weight: 700; text-align: center;
+                   padding: 10px; border-radius: 13px; border: 3px solid var(--paper-sh); outline: none; }
+.modal-box input:focus { border-color: var(--gk-accent); }
+.avatar-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.avatar-choice { font-size: 1.6rem; padding: 6px; cursor: pointer; background: #ece0c8;
+                 border: 3px solid transparent; border-radius: 11px; }
+.avatar-choice.selected { border-color: var(--gk-accent); background: #ffe0cd; transform: scale(1.08); }
+
+/* ---------- misc ---------- */
+.help-steps { text-align: left; padding-left: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 0.92rem; line-height: 1.3; }
+.modal-actions { display: flex; gap: 10px; justify-content: center; margin: 6px 0; }
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
+.toast { z-index: 70; }

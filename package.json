@@ -1,0 +1,9 @@
+{
+  "name": "bubble-brew",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A push-your-luck bag-builder at an alchemist's cauldron, for the family games shelf. Built on gamekit.",
+  "scripts": {
+    "test": "node --test"
+  }
+}
