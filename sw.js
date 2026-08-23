@@ -6,7 +6,7 @@
 // BUMP THE CACHE NAME whenever any shell file below changes, or devices keep
 // serving the copy they already have and the fix never lands.
 
-const CACHE = "bubble-brew-v1";
+const CACHE = "bubble-brew-v2";
 
 const SHELL = [
   "./",

@@ -37,6 +37,8 @@ const App = {
   async init() {
     Sfx.enabled = Storage.getSettings().sound;
     GK.UI.bindSoundToggle(Storage);
+    // Every menu button clicks; buttons that make their own sound keep it.
+    GK.UI.bindMenuClicks();
     GK.UI.onScreenChange = (name) => {
       Render.active = name === "game";
       if (name === "splash") this.refreshSplash();
